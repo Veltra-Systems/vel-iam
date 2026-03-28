@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "module": "nodenext", // Use Node.js native ESM module system
+    "moduleResolution": "nodenext", // Resolve modules like Node.js does with ESM
+    "resolvePackageJsonExports": true, // Respect package.json exports field
+    "esModuleInterop": true, // Allow default imports from CommonJS modules
+    "isolatedModules": true, // Each file compiled independently (required by NestJS)
+    "declaration": true, // Generate .d.ts type declaration files
+    "removeComments": true, // Strip comments from compiled output
+    "emitDecoratorMetadata": true, // Emit metadata for decorators (required by NestJS DI)
+    "experimentalDecorators": true, // Enable @Decorators syntax (required by NestJS)
+    "allowSyntheticDefaultImports": true, // Allow import x from 'y' without default export
+    "target": "ES2023", // Compile to ES2023 syntax
+    "sourceMap": true, // Generate .map files for debugging
+    "outDir": "./dist", // Output compiled files to /dist
+    "incremental": true, // Cache compilation to speed up rebuilds
+    "skipLibCheck": true, // Skip type checking of node_modules
+    "strict": true, // Enable all strict type checks
+    "noImplicitAny": true, // Error when type is implicitly any
+    "strictBindCallApply": true, // Strict types for .bind() .call() .apply()
+    "strictFunctionTypes": true, // Strict function parameter type checking
+    "strictPropertyInitialization": true, // Error if class properties not initialized
+    "alwaysStrict": true, // Add 'use strict' to every compiled file
+    "noImplicitReturns": true, // Error if not all code paths return a value
+    "noFallthroughCasesInSwitch": true, // Error on switch cases without break/return
+    "noUncheckedIndexedAccess": true, // Array access returns T | undefined
+    "forceConsistentCasingInFileNames": true, // Error on inconsistent import casing
+    "useUnknownInCatchVariables": true, // catch(e) types e as unknown not any
+    "exactOptionalPropertyTypes": true, // Distinguish undefined vs missing property
+    "pretty": true // Format TypeScript error output nicely
+  }
+}
