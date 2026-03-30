@@ -1,21 +1,44 @@
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { AuthController } from './auth.controller'
+import { AuthService } from './auth.service'
 
 describe('AuthController', () => {
   let controller: AuthController
 
+  const authServiceMock = {
+    register: jest.fn(),
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: authServiceMock,
+        },
+      ],
     }).compile()
 
     controller = module.get<AuthController>(AuthController)
   })
 
-  describe('registerUser', () => {
+  describe('register', () => {
     it('returns a successful response', () => {
-      const response = controller.register()
+      authServiceMock.register.mockReturnValue({
+        message: 'The user registered successfully.',
+      })
+
+      const body = {
+        email: 'test@example.com',
+        password: 'pass-example',
+      }
+
+      const response = controller.register(body)
+
+      expect(authServiceMock.register).toHaveBeenCalledTimes(1)
+      expect(authServiceMock.register).toHaveBeenCalledWith(body.email, body.password)
 
       expect(response).toEqual({
         message: 'The user registered successfully.',
