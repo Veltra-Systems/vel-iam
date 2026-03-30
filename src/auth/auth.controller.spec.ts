@@ -6,6 +6,7 @@ import { AuthService } from './auth.service'
 describe('AuthController', () => {
   let controller: AuthController
 
+  // TODO: Mock > common?
   const authServiceMock = {
     register: jest.fn(),
   }
@@ -25,7 +26,8 @@ describe('AuthController', () => {
   })
 
   describe('register', () => {
-    it('returns a successful response', () => {
+    it('returns a successful response', async () => {
+      // TODO: Mock?
       authServiceMock.register.mockReturnValue({
         message: 'The user registered successfully.',
       })
@@ -35,7 +37,7 @@ describe('AuthController', () => {
         password: 'pass-example',
       }
 
-      const response = controller.register(body)
+      const response = await controller.register(body)
 
       expect(authServiceMock.register).toHaveBeenCalledTimes(1)
       expect(authServiceMock.register).toHaveBeenCalledWith(body.email, body.password)

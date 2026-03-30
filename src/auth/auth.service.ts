@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { UserService } from '../user/user.service'
 
 interface ResponseAuth {
   message: string
@@ -6,12 +7,9 @@ interface ResponseAuth {
 
 @Injectable()
 export class AuthService {
-  register(email: string, password: string): ResponseAuth {
-    void email
-    void password
+  constructor(private readonly userService: UserService) {}
 
-    return {
-      message: 'The user registered successfully.',
-    }
+  async register(email: string, password: string): Promise<ResponseAuth> {
+    return await this.userService.register(email, password)
   }
 }

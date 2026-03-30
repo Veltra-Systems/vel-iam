@@ -1,47 +1,50 @@
-import type { TestingModule } from '@nestjs/testing'
-import { Test } from '@nestjs/testing'
-import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { AppModule } from '../../src/app.module'
-import { CustomValidationPipe } from '../../src/common/pipes/customValidationPipe'
 import type { Server } from 'http'
-import { TransformResponseInterceptor } from '../../src/common/interceptors/transform-response.interceptor'
+import type { DatabaseService } from '../../src/database/database.service'
+import { cleanupTestApp, clearTables, setupTestApp } from '../setup-test'
 
 describe('AuthController (e2e)', () => {
-  let app: INestApplication
   let server: Server
+  let databaseService: DatabaseService
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile()
+  beforeAll(async () => {
+    const setup = (await setupTestApp()) as { server: Server; db: DatabaseService }
+    server = setup.server
+    databaseService = setup.db
+  })
 
-    // TODO: Mock?
-    app = moduleFixture.createNestApplication()
-    app.useGlobalPipes(new CustomValidationPipe())
-    app.useGlobalInterceptors(new TransformResponseInterceptor())
+  afterEach(async () => {
+    await clearTables()
+  })
 
-    await app.init()
-    server = app.getHttpServer() as Server
+  afterAll(async () => {
+    await cleanupTestApp()
   })
 
   describe('register', () => {
     const url = '/auth/register'
 
     it('returns a successful response (POST)', async () => {
-      const response = await request(server)
-        .post(url)
-        .send({
-          email: 'test@example.com',
-          password: 'pass-example',
-        })
-        .expect(201)
+      const body = {
+        email: 'test@example.com',
+        password: 'pass-example',
+      }
+
+      const response = await request(server).post(url).send(body).expect(201)
 
       expect(response.body).toEqual({
         code: 'Success',
         message: 'The user registered successfully.',
         data: null,
       })
+
+      const resultUser = await databaseService.user.findUnique({
+        where: { email: body.email },
+      })
+
+      expect(resultUser).toBeDefined()
+      expect(resultUser?.email).toBe(body.email)
+      expect(resultUser?.passwordHash).toBe(body.password)
     })
 
     it('returns errors when body is empty', async () => {
