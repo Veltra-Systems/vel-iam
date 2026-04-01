@@ -6,6 +6,7 @@ import { createDatabaseMock } from '../common/tests/mocks/database.mock'
 import { userFactory } from '../common/tests/factories/user.factory'
 import type { User } from '@prisma/client'
 import { Prisma } from '@prisma/client'
+import { DuplicateResourceException } from '../common/errors/database.errors'
 
 describe('UserService', () => {
   let service: UserService
@@ -61,6 +62,7 @@ describe('UserService', () => {
       const prismaError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
         code: 'P2002',
         clientVersion: 'test',
+        meta: { target: ['email'] },
       })
 
       // TODO: Mock util ?
@@ -68,7 +70,11 @@ describe('UserService', () => {
 
       const response = executeRegister(email, password)
 
-      await expect(response).rejects.toThrow('Email already exists')
+      await expect(response).rejects.toBeInstanceOf(DuplicateResourceException)
+      await expect(response).rejects.toMatchObject({
+        message: 'Duplicate data in user registration',
+        extra: { duplicateFields: ['email'] },
+      })
     })
   })
 })

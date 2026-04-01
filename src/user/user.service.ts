@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { DatabaseService } from '../database/database.service'
 import { User, Prisma } from '@prisma/client'
+import { DuplicateResourceException } from '../common/errors/database.errors'
 
 @Injectable()
 export class UserService {
@@ -16,7 +17,11 @@ export class UserService {
       })
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-        throw new Error('Email already exists')
+        const duplicatedFields = (err.meta as { target?: string[] })?.target ?? []
+
+        throw new DuplicateResourceException('Duplicate data in user registration', {
+          duplicateFields: duplicatedFields,
+        })
       }
 
       throw new Error('Unhandled error')
