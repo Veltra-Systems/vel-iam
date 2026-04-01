@@ -2,11 +2,11 @@
   "name": "vel-iam",
   "version": "0.0.1",
   "description": "Identity & Access Management",
-  "author": "Aframos",
+  "author": "Andres Ramos - aframos",
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=24"
+    "node": ">=22"
   },
   "scripts": {
     "build": "nest build",
@@ -32,6 +32,7 @@
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@prisma/adapter-pg": "^7.6.0",
     "@prisma/client": "^7.6.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
@@ -50,6 +51,7 @@
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
     "dotenv": "^17.3.1",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",

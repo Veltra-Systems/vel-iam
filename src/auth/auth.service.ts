@@ -10,6 +10,10 @@ export class AuthService {
   constructor(private readonly userService: UserService) {}
 
   async register(email: string, password: string): Promise<ResponseAuth> {
-    return await this.userService.register(email, password)
+    await this.userService.register(email, password)
+
+    return {
+      message: 'The user registered successfully.',
+    }
   }
 }
