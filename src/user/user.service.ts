@@ -4,6 +4,7 @@ import { User, Prisma } from '@prisma/client'
 import {
   DuplicateResourceException,
   InvalidResourceException,
+  UnhandledException,
 } from '../common/errors/database.errors'
 
 @Injectable()
@@ -36,7 +37,9 @@ export class UserService {
         })
       }
 
-      throw new Error('Unhandled error')
+      throw new UnhandledException('Unhandled error in user creation', {
+        error: (err as Error).message,
+      })
     }
   }
 }

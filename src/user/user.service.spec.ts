@@ -9,6 +9,7 @@ import { Prisma } from '@prisma/client'
 import {
   DuplicateResourceException,
   InvalidResourceException,
+  UnhandledException,
 } from '../common/errors/database.errors'
 
 describe('UserService', () => {
@@ -105,6 +106,22 @@ describe('UserService', () => {
       })
 
       expect(databaseServiceMock.user.create).not.toHaveBeenCalled()
+    })
+
+    it('throws error when something unexpected happens.', async () => {
+      const unknownError = new Error('Some random failure')
+
+      databaseServiceMock.user.create.mockRejectedValue(unknownError)
+
+      const response = executeRegister(email, password)
+
+      await expect(response).rejects.toBeInstanceOf(UnhandledException)
+      await expect(response).rejects.toMatchObject({
+        message: 'Unhandled error in user creation',
+        extra: {
+          error: 'Some random failure',
+        },
+      })
     })
   })
 })

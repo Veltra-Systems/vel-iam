@@ -21,3 +21,9 @@ export class InvalidResourceException extends ExceptionBase<{
     super(message, extra)
   }
 }
+
+export class UnhandledException extends ExceptionBase<{ error: string }> {
+  constructor(message: string, extra?: { error: string }) {
+    super(message, extra)
+  }
+}
