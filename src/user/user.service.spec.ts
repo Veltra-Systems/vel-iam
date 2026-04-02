@@ -6,7 +6,10 @@ import { createDatabaseMock } from '../common/tests/mocks/database.mock'
 import { userFactory } from '../common/tests/factories/user.factory'
 import type { User } from '@prisma/client'
 import { Prisma } from '@prisma/client'
-import { DuplicateResourceException } from '../common/errors/database.errors'
+import {
+  DuplicateResourceException,
+  InvalidResourceException,
+} from '../common/errors/database.errors'
 
 describe('UserService', () => {
   let service: UserService
@@ -75,6 +78,33 @@ describe('UserService', () => {
         message: 'Duplicate data in user registration',
         extra: { duplicateFields: ['email'] },
       })
+    })
+
+    it.each([
+      [null, password],
+      ['', password],
+      ['   ', password],
+      [email, null],
+      [email, ''],
+      [email, '   '],
+    ])('throws error when fields are invalid: %p %p', async (emailInput, passwordInput) => {
+      const response = executeRegister(
+        emailInput as unknown as string,
+        passwordInput as unknown as string,
+      )
+
+      await expect(response).rejects.toBeInstanceOf(InvalidResourceException)
+      await expect(response).rejects.toMatchObject({
+        message: 'Invalid field format',
+        extra: {
+          validFormatFields: {
+            email: ['notNullEmpty', 'string'],
+            password: ['notNullEmpty', 'string'],
+          },
+        },
+      })
+
+      expect(databaseServiceMock.user.create).not.toHaveBeenCalled()
     })
   })
 })

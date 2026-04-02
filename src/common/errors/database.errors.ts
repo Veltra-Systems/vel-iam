@@ -13,3 +13,11 @@ export class DuplicateResourceException extends ExceptionBase<{ duplicateFields:
     super(message, extra)
   }
 }
+
+export class InvalidResourceException extends ExceptionBase<{
+  validFormatFields: Record<string, string[]>
+}> {
+  constructor(message: string, extra?: { validFormatFields: Record<string, string[]> }) {
+    super(message, extra)
+  }
+}
