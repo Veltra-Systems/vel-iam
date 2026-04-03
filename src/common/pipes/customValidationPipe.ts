@@ -5,7 +5,10 @@ import {
   ArgumentMetadata,
   ValidationPipe,
   ValidationError,
+  HttpStatus,
 } from '@nestjs/common'
+import { ErrorResponse } from '../filters/response-exceptions.filter'
+import { TypeErrorMap } from '../errors/error-types'
 
 @Injectable()
 export class CustomValidationPipe extends ValidationPipe implements PipeTransform {
@@ -19,12 +22,15 @@ export class CustomValidationPipe extends ValidationPipe implements PipeTransfor
           details[err.property] = err.constraints ?? {}
         })
 
-        throw new BadRequestException({
+        const response: ErrorResponse = {
+          status: HttpStatus.BAD_REQUEST,
+          code: TypeErrorMap.BAD_REQUEST.code,
+          error: TypeErrorMap.BAD_REQUEST.name,
           message: 'The request contains invalid data.',
-          // TODO: Enum?
-          code: 'BadRequest',
           details: [details],
-        })
+        }
+
+        throw new BadRequestException(response)
       },
     })
   }

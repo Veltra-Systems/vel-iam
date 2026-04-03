@@ -63,7 +63,8 @@ describe('AuthController (e2e)', () => {
       const response = await request(server).post(url).send({}).expect(400)
 
       expect(response.body).toEqual({
-        code: 'BadRequest',
+        code: 400,
+        error: 'BAD_REQUEST',
         message: 'The request contains invalid data.',
         details: [
           {
@@ -89,7 +90,8 @@ describe('AuthController (e2e)', () => {
         .expect(400)
 
       expect(response.body).toEqual({
-        code: 'BadRequest',
+        code: 400,
+        error: 'BAD_REQUEST',
         message: 'The request contains invalid data.',
         details: [
           {
@@ -115,7 +117,8 @@ describe('AuthController (e2e)', () => {
         .expect(400)
 
       expect(response.body).toEqual({
-        code: 'BadRequest',
+        code: 400,
+        error: 'BAD_REQUEST',
         message: 'The request contains invalid data.',
         details: [
           {
@@ -139,7 +142,7 @@ describe('AuthController (e2e)', () => {
 
       expect(response.body).toEqual({
         code: 101,
-        error: 'EmailAlreadyExists',
+        error: 'EMAIL_ALREADY_EXISTS',
         message: 'The email address entered already exists',
       })
     })
@@ -153,7 +156,7 @@ describe('AuthController (e2e)', () => {
 
       expect(response.body).toEqual({
         code: 102,
-        error: 'InternalError',
+        error: 'INTERNAL_ERROR',
         message: 'An internal error occurred within the system',
       })
     })
@@ -167,7 +170,7 @@ describe('AuthController (e2e)', () => {
 
       expect(response.body).toEqual({
         code: 100,
-        error: 'ErrorNotFound',
+        error: 'UNKNOWN',
         message: 'Something unexpected happened',
       })
     })

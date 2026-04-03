@@ -5,12 +5,14 @@ import {
   ExceptionBase,
   UnhandledException,
 } from '../errors/database.errors'
+import { TypeErrorMap } from '../errors/error-types'
 
-interface ErrorResponse {
+export interface ErrorResponse {
   status: number
   code: number
   error: string
   message: string
+  details?: unknown
 }
 
 type ErrorEntry = {
@@ -23,8 +25,8 @@ const errorMap: ErrorEntry[] = [
     type: DuplicateResourceException,
     response: {
       status: HttpStatus.CONFLICT,
-      code: 101,
-      error: 'EmailAlreadyExists',
+      code: TypeErrorMap.EMAIL_ALREADY_EXISTS.code,
+      error: TypeErrorMap.EMAIL_ALREADY_EXISTS.name,
       message: 'The email address entered already exists',
     },
   },
@@ -32,8 +34,8 @@ const errorMap: ErrorEntry[] = [
     type: UnhandledException,
     response: {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
-      code: 102,
-      error: 'InternalError',
+      code: TypeErrorMap.INTERNAL_ERROR.code,
+      error: TypeErrorMap.INTERNAL_ERROR.name,
       message: 'An internal error occurred within the system',
     },
   },
@@ -46,28 +48,29 @@ export class ResponseExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>()
 
     if (exception instanceof HttpException) {
-      response.status(exception.getStatus()).json(exception.getResponse())
+      const { status, ...resultException } = exception.getResponse() as ErrorResponse
+      response.status(status).json(resultException)
       return
     }
 
     let resultError: ErrorResponse = {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
-      code: 100,
-      error: 'ErrorNotFound',
+      code: TypeErrorMap.UNKNOWN.code,
+      error: TypeErrorMap.UNKNOWN.name,
       message: 'Something unexpected happened',
     }
 
     if (exception instanceof ExceptionBase) {
       const match = errorMap.find((e) => exception instanceof e.type)
       if (match) {
-        resultError = match.response
+        resultError = {
+          ...match.response,
+        }
       }
     }
 
-    response.status(resultError.status).json({
-      code: resultError.code,
-      error: resultError.error,
-      message: resultError.message,
-    })
+    const { status, ...resultException } = resultError
+
+    response.status(status).json(resultException)
   }
 }

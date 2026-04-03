@@ -18,7 +18,6 @@ export class TransformResponseInterceptor<T> implements NestInterceptor<T, ApiRe
   intercept(_context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
     return next.handle().pipe(
       map((res: PartialResponse<T>) => ({
-        // TODO: Enum ?
         code: 200,
         message: res.message ?? 'Operation completed successfully',
         data: res.data ?? null,
