@@ -13,28 +13,31 @@ interface ErrorResponse {
   message: string
 }
 
-type ExceptionConstructor = new (...args: any[]) => ExceptionBase
+type ErrorEntry = {
+  type: new (...args: never[]) => ExceptionBase<unknown>
+  response: ErrorResponse
+}
 
-const errorMap = new Map<ExceptionConstructor, ErrorResponse>([
-  [
-    DuplicateResourceException,
-    {
+const errorMap: ErrorEntry[] = [
+  {
+    type: DuplicateResourceException,
+    response: {
       status: HttpStatus.CONFLICT,
       code: 101,
       error: 'EmailAlreadyExists',
       message: 'The email address entered already exists',
     },
-  ],
-  [
-    UnhandledException,
-    {
+  },
+  {
+    type: UnhandledException,
+    response: {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       code: 102,
       error: 'InternalError',
       message: 'An internal error occurred within the system',
     },
-  ],
-])
+  },
+]
 
 @Catch()
 export class ResponseExceptionsFilter implements ExceptionFilter {
@@ -55,7 +58,10 @@ export class ResponseExceptionsFilter implements ExceptionFilter {
     }
 
     if (exception instanceof ExceptionBase) {
-      resultError = errorMap.get(exception.constructor) ?? resultError
+      const match = errorMap.find((e) => exception instanceof e.type)
+      if (match) {
+        resultError = match.response
+      }
     }
 
     response.status(resultError.status).json({
