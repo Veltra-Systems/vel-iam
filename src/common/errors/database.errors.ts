@@ -1,4 +1,4 @@
-abstract class ExceptionBase<T = null> extends Error {
+export abstract class ExceptionBase<T = null> extends Error {
   public readonly extra?: T | null
 
   protected constructor(message: string, extra?: T) {

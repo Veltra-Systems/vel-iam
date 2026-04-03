@@ -8,7 +8,7 @@ export interface PartialResponse<T = unknown> {
 }
 
 interface ApiResponse<T = unknown> {
-  code: string
+  code: number
   message: string
   data?: T | null
 }
@@ -19,7 +19,7 @@ export class TransformResponseInterceptor<T> implements NestInterceptor<T, ApiRe
     return next.handle().pipe(
       map((res: PartialResponse<T>) => ({
         // TODO: Enum ?
-        code: 'Success',
+        code: 200,
         message: res.message ?? 'Operation completed successfully',
         data: res.data ?? null,
       })),

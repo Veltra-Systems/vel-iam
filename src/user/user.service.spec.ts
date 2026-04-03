@@ -62,14 +62,13 @@ describe('UserService', () => {
     })
 
     it('throws error when email already exists', async () => {
-      // TODO: Util ?
+      // TODO: Mocks ?
       const prismaError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
         code: 'P2002',
         clientVersion: 'test',
         meta: { target: ['email'] },
       })
 
-      // TODO: Mock util ?
       databaseServiceMock.user.create.mockRejectedValue(prismaError)
 
       const response = executeRegister(email, password)
@@ -109,6 +108,7 @@ describe('UserService', () => {
     })
 
     it('throws error when something unexpected happens.', async () => {
+      // TODO: Mocks?
       const unknownError = new Error('Some random failure')
 
       databaseServiceMock.user.create.mockRejectedValue(unknownError)

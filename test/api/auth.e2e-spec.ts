@@ -2,15 +2,25 @@ import request from 'supertest'
 import type { Server } from 'http'
 import type { DatabaseService } from '../../src/database/database.service'
 import { cleanupTestApp, clearTables, setupTestApp } from '../setup-test'
+import { UserService } from '../../src/user/user.service'
+import type { INestApplication } from '@nestjs/common'
 
 describe('AuthController (e2e)', () => {
   let server: Server
   let databaseService: DatabaseService
+  let userService: UserService
 
   beforeAll(async () => {
-    const setup = (await setupTestApp()) as { server: Server; db: DatabaseService }
+    const setup = (await setupTestApp()) as {
+      server: Server
+      db: DatabaseService
+      app: INestApplication
+    }
+
     server = setup.server
     databaseService = setup.db
+
+    userService = setup.app.get(UserService)
   })
 
   afterEach(async () => {
@@ -24,18 +34,20 @@ describe('AuthController (e2e)', () => {
   describe('register', () => {
     const url = '/auth/register'
 
-    it('returns a successful response (POST)', async () => {
-      const body = {
-        email: 'test@example.com',
-        password: 'pass-example',
-      }
+    const body = {
+      email: 'test@example.com',
+      password: 'pass-example',
+    }
 
+    it('returns a successful response (POST)', async () => {
       const response = await request(server).post(url).send(body).expect(201)
 
       expect(response.body).toEqual({
-        code: 'Success',
+        code: 200,
         message: 'The user registered successfully.',
-        data: null,
+        data: {
+          email: body.email,
+        },
       })
 
       const resultUser = await databaseService.user.findUnique({
@@ -112,6 +124,51 @@ describe('AuthController (e2e)', () => {
             },
           },
         ],
+      })
+    })
+
+    it('returns duplicate email error when email already exists', async () => {
+      await databaseService.user.create({
+        data: {
+          email: body.email,
+          passwordHash: body.password,
+        },
+      })
+
+      const response = await request(server).post(url).send(body).expect(409)
+
+      expect(response.body).toEqual({
+        code: 101,
+        error: 'EmailAlreadyExists',
+        message: 'The email address entered already exists',
+      })
+    })
+
+    it('returns internal error when an unexpected error occurs', async () => {
+      jest
+        .spyOn(databaseService.user, 'create')
+        .mockRejectedValueOnce(new Error('Unexpected DB error'))
+
+      const response = await request(server).post(url).send(body).expect(500)
+
+      expect(response.body).toEqual({
+        code: 102,
+        error: 'InternalError',
+        message: 'An internal error occurred within the system',
+      })
+    })
+
+    it('returns default error when error is not controlled', async () => {
+      jest.spyOn(userService, 'register').mockImplementationOnce(() => {
+        throw new Error('unexpected error')
+      })
+
+      const response = await request(server).post(url).send(body).expect(500)
+
+      expect(response.body).toEqual({
+        code: 100,
+        error: 'ErrorNotFound',
+        message: 'Something unexpected happened',
       })
     })
   })

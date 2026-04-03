@@ -6,7 +6,7 @@ import { AuthService } from './auth.service'
 describe('AuthController', () => {
   let controller: AuthController
 
-  // TODO: Mock > common?
+  // TODO: Mocks ?
   const authServiceMock = {
     register: jest.fn(),
   }
@@ -27,15 +27,14 @@ describe('AuthController', () => {
 
   describe('register', () => {
     it('returns a successful response', async () => {
-      // TODO: Mock?
-      authServiceMock.register.mockReturnValue({
-        message: 'The user registered successfully.',
-      })
-
       const body = {
         email: 'test@example.com',
         password: 'pass-example',
       }
+
+      authServiceMock.register.mockReturnValue({
+        email: body.email,
+      })
 
       const response = await controller.register(body)
 
@@ -44,6 +43,9 @@ describe('AuthController', () => {
 
       expect(response).toEqual({
         message: 'The user registered successfully.',
+        data: {
+          email: body.email,
+        },
       })
     })
   })

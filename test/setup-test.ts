@@ -7,6 +7,7 @@ import { AppModule } from '../src/app.module'
 import { CustomValidationPipe } from '../src/common/pipes/customValidationPipe'
 import { TransformResponseInterceptor } from '../src/common/interceptors/transform-response.interceptor'
 import type { Server } from 'http'
+import { ResponseExceptionsFilter } from '../src/common/filters/response-exceptions.filter'
 
 config({ path: '.env.test' })
 
@@ -26,6 +27,8 @@ export async function setupTestApp(): Promise<{
   app = module.createNestApplication()
   app.useGlobalPipes(new CustomValidationPipe())
   app.useGlobalInterceptors(new TransformResponseInterceptor())
+  app.useGlobalFilters(new ResponseExceptionsFilter())
+
   await app.init()
 
   db = module.get(DatabaseService)

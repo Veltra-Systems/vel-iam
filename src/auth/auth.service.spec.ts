@@ -2,11 +2,12 @@ import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { AuthService } from './auth.service'
 import { UserService } from '../user/user.service'
+import { userFactory } from '../common/tests/factories/user.factory'
 
 describe('AuthService', () => {
   let service: AuthService
 
-  // TODO: Mock > common?
+  // TODO: Mocks ?
   const userServiceMock = {
     register: jest.fn(),
   }
@@ -27,13 +28,15 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('returns a successful response', async () => {
-      // TODO: Mock?
-      userServiceMock.register.mockReturnValue({
-        message: 'The user registered successfully.',
-      })
-
       const email = 'test@example.com'
       const password = 'pass-example'
+
+      const userMock = userFactory({
+        email,
+        passwordHash: password,
+      })
+
+      userServiceMock.register.mockResolvedValue(userMock)
 
       const response = await service.register(email, password)
 
@@ -41,7 +44,7 @@ describe('AuthService', () => {
       expect(userServiceMock.register).toHaveBeenCalledWith(email, password)
 
       expect(response).toEqual({
-        message: 'The user registered successfully.',
+        email,
       })
     })
   })

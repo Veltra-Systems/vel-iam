@@ -9,6 +9,10 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() body: RegisterDto): Promise<PartialResponse> {
-    return await this.authService.register(body.email, body.password)
+    const responseUser = await this.authService.register(body.email, body.password)
+    return {
+      message: 'The user registered successfully.',
+      data: responseUser,
+    }
   }
 }
